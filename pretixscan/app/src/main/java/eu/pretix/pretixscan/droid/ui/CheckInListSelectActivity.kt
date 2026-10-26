@@ -7,12 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import eu.pretix.libpretixsync.api.PretixApi
 import eu.pretix.libpretixsync.models.CheckInList
 import eu.pretix.libpretixsync.models.db.toModel
 import eu.pretix.libpretixsync.sync.SyncManager
-import eu.pretix.pretixpos.anim.MorphingDialogActivity
+import eu.pretix.pretixscan.droid.anim.MorphingDialogActivity
 import eu.pretix.pretixscan.droid.*
 import eu.pretix.pretixscan.droid.databinding.ActivityCheckinlistSelectBinding
 import kotlinx.coroutines.CoroutineScope
@@ -147,6 +148,13 @@ class CheckInListSelectActivity : MorphingDialogActivity() {
         }
 
         setupTransition(ActivityCompat.getColor(this, R.color.pretix_brand_light))
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                setResult(RESULT_CANCELED)
+                supportFinishAfterTransition()
+            }
+        })
     }
 
     private fun refresh(forceSync: Boolean = false) {
@@ -177,10 +185,5 @@ class CheckInListSelectActivity : MorphingDialogActivity() {
         } else {
             binding.cbMultievent.visibility = View.VISIBLE
         }
-    }
-
-    override fun onBackPressed() {
-        setResult(RESULT_CANCELED)
-        super.onBackPressed()
     }
 }

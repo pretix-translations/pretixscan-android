@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -174,6 +175,25 @@ class EventConfigActivity : AppCompatActivity() {
         }
 
         conf = AppConfig(this)
+
+        if (conf.synchronizedEvents.isEmpty()) {
+            onBackPressedDispatcher.addCallback(
+                this,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        // back navigation is disabled when no events are synchronized
+                        // (aka on initial app configuration)
+                    }
+                })
+        } else {
+            onBackPressedDispatcher.addCallback(this,
+                object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    supportFinishAfterTransition()
+                }
+            })
+        }
+
         eventSelectionAdapter = EventSelectionAdapter((application as PretixScan).db, conf, this)
         if (conf.requiresPin("switch_event") && (!intent.hasExtra("pin") || !conf.verifyPin(intent.getStringExtra("pin")!!))) {
             // Protect against external calls
@@ -233,11 +253,5 @@ class EventConfigActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        if (conf.synchronizedEvents.isNotEmpty()) {
-            super.onBackPressed()
-        }
     }
 }

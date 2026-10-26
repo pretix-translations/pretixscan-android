@@ -8,6 +8,7 @@ import android.os.Handler
 import android.view.View
 import android.widget.Button
 import android.widget.CalendarView
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -21,7 +22,7 @@ import eu.pretix.libpretixsync.api.DeviceAccessRevokedException
 import eu.pretix.libpretixsync.api.PretixApi
 import eu.pretix.libpretixsync.setup.EventManager
 import eu.pretix.libpretixsync.setup.RemoteEvent
-import eu.pretix.pretixpos.anim.MorphingDialogActivity
+import eu.pretix.pretixscan.droid.anim.MorphingDialogActivity
 import eu.pretix.pretixscan.droid.AndroidHttpClientFactory
 import eu.pretix.pretixscan.droid.AppConfig
 import eu.pretix.pretixscan.droid.PretixScan
@@ -66,6 +67,17 @@ class EventSelectActivity : MorphingDialogActivity() {
         setContentView(binding.root)
 
         conf = AppConfig(this)
+
+        if (conf.synchronizedEvents.isEmpty()) {
+            onBackPressedDispatcher.addCallback(this,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        // back navigation is disabled when
+                        // no events are synchronized (= on initial app configuration)
+                    }
+                }
+            )
+        }
 
         eventsLayoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         binding.eventSelectList!!.eventsList.apply {
@@ -247,12 +259,6 @@ class EventSelectActivity : MorphingDialogActivity() {
                     }, 100)
                 }
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        if (conf.synchronizedEvents.isNotEmpty()) {
-            super.onBackPressed()
         }
     }
 }

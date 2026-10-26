@@ -12,6 +12,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
@@ -281,14 +282,16 @@ class SettingsActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.content, SettingsFragment())
             .commit()
-    }
 
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 0) {
-            NavUtils.navigateUpFromSameTask(this)
-        } else {
-            super.onBackPressed()
-        }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStack()
+                } else {
+                    NavUtils.navigateUpFromSameTask(this@SettingsActivity)
+                }
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

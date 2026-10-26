@@ -1,13 +1,12 @@
-package eu.pretix.pretixpos.anim
+package eu.pretix.pretixscan.droid.anim
 
 import android.transition.ArcMotion
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import eu.pretix.pretixscan.droid.R
-import eu.pretix.pretixscan.droid.anim.MorphDialogToView
-import eu.pretix.pretixscan.droid.anim.MorphViewToDialog
 
 abstract class MorphingDialogActivity : AppCompatActivity() {
     protected fun setupTransition(@ColorInt backgroundStart: Int, duration: Int = 300) {
@@ -32,10 +31,14 @@ abstract class MorphingDialogActivity : AppCompatActivity() {
 
         window.sharedElementEnterTransition = sharedEnter
         window.sharedElementReturnTransition = sharedReturn
-    }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        supportFinishAfterTransition()
+        // NOTE: this doesn't support inheritance.
+        // If the child activity calls `onBackPressedDispatcher.addCallback` by itself,
+        // add `supportFinishAfterTransition()` to that.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                supportFinishAfterTransition()
+            }
+        })
     }
 }
